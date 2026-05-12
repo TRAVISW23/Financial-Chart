@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AInvest Finance Chart</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: black;
+  color: white;
+}
+
+.navbar {
+  display: flex;
+  align-items: center;
+  padding: 12px 20px;
+  border-bottom: 1px solid #222;
+  position: sticky;
+  top: 0;
+  background: black;
+  z-index: 1000;
+}
+
+.logo {
+  font-size: 20px;
+  font-weight: bold;
+  margin-right: 20px;
+}
+
+.tabs {
+  display: flex;
+  gap: 20px;
+}
+
+.tabs div {
+  cursor: pointer;
+  opacity: 0.7;
+}
+
+.tabs div:hover {
+  opacity: 1;
+}
+
+.search {
+  margin-left: 20px;
+  flex-grow: 1;
+}
+
+.search input {
+  width: 100%;
+  padding: 8px;
+  background: #111;
+  border: 1px solid #333;
+  color: white;
+}
+
+.avatar {
+  position: relative;
+  margin-left: 20px;
+  cursor: pointer;
+}
+
+.avatar img {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+}
+
+.dropdown {
+  position: absolute;
+  top: 45px;
+  right: 0;
+  background: #111;
+  border: 1px solid #333;
+  display: none;
+  flex-direction: column;
+  min-width: 150px;
+}
+
+.dropdown div {
+  padding: 12px;
+}
+
+.dropdown div:hover {
+  background: #222;
+}
+
+.hero {
+  min-height: 220px;
+  height: 34vh;
+  max-height: 340px;
+  background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.9)),
+              url('https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3') center/cover;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 40px;
+}
+
+.hero h1 {
+  font-size: 38px;
+  line-height: 1.08;
+  margin: 0;
+}
+
+.hero p {
+  opacity: 0.75;
+  font-size: 15px;
+  margin-bottom: 0;
+}
+
+.section {
+  padding: 40px;
+}
+
+.recommendation-section {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 30px 24px 48px;
+}
+
+.waterfall-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 24px;
+}
+
+.sort-tabs {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  background: #111;
+  border: 1px solid #333;
+}
+
+.sort-tabs button {
+  color: white;
+  background: transparent;
+  border: 0;
+  padding: 8px 14px;
+  cursor: pointer;
+  opacity: 0.65;
+}
+
+.sort-tabs button:hover,
+.sort-tabs button.active {
+  opacity: 1;
+  background: #222;
+}
+
+.timeline-item {
+  display: flex;
+  margin-bottom: 42px;
+}
+
+.dot {
+  width: 12px;
+  height: 12px;
+  background: white;
+  border-radius: 50%;
+  margin-right: 20px;
+  margin-top: 6px;
+}
+
+.content {
+  flex: 1;
+}
+
+.time {
+  font-size: 12px;
+  opacity: 0.5;
+}
+
+.chart {
+  height: 180px;
+  background: linear-gradient(135deg, #111, #1a1a1a);
+  border: 1px solid #333;
+  margin-top: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #666;
+}
+
+.timeline-chart {
+  aspect-ratio: 4 / 3;
+  height: auto;
+  min-height: 0;
+}
+
+.placeholder-text {
+  font-size: 14px;
+  opacity: 0.4;
+}
+
+@media (max-width: 720px) {
+  .navbar {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .search {
+    order: 3;
+    flex-basis: 100%;
+    margin-left: 0;
+  }
+
+  .hero {
+    min-height: 190px;
+    height: 28vh;
+    padding: 0 24px;
+  }
+
+  .hero h1 {
+    font-size: 30px;
+  }
+
+  .recommendation-section {
+    padding: 24px 18px 40px;
+  }
+
+  .waterfall-toolbar {
+    justify-content: center;
+  }
+}
+
+.category-row {
+  margin-bottom: 50px;
+}
+
+.category-title {
+  font-size: 24px;
+  margin-bottom: 15px;
+}
+
+.horizontal-scroll {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+}
+
+.card {
+  min-width: 240px;
+  background: #111;
+  padding: 15px;
+  border: 1px solid #333;
+}
+
+.card-chart {
+  height: 120px;
+  margin-top: 10px;
+  background: #1a1a1a;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #555;
+}
+
+.watchlist {
+  display: flex;
+}
+
+.tickers {
+  width: 220px;
+}
+
+.tickers div {
+  padding: 14px;
+  border-bottom: 1px solid #222;
+}
+
+.watch-charts {
+  flex: 1;
+  display: flex;
+  gap: 15px;
+  overflow-x: auto;
+}
+</style>
+</head>
+<body>
+
+<div class="navbar">
+  <div class="logo">AInvest Finance Chart</div>
+
+  <div class="tabs">
+    <div onclick="showPage('recommendation')">Recommendation</div>
+    <div onclick="showPage('category')">Category</div>
+    <div onclick="showPage('watchlist')">Watchlist</div>
+  </div>
+
+  <div class="search">
+    <input placeholder="Search...">
+  </div>
+
+  <div class="avatar" onclick="toggleDropdown()">
+    <img src="https://i.pravatar.cc/100">
+    <div class="dropdown" id="dropdown">
+      <div>User Info</div>
+      <div>Settings</div>
+      <div>Login</div>
+      <div>Logout</div>
+    </div>
+  </div>
+</div>
+
+<div id="recommendation">
+  <div class="hero">
+    <h1>AInvest Finance Chart</h1>
+    <p>Professional AI-Generated Chart Intelligence</p>
+  </div>
+
+  <div class="section recommendation-section">
+
+    <div class="waterfall-toolbar">
+      <div class="sort-tabs" aria-label="Sort recommendation charts">
+        <button class="active" type="button" data-sort="latest" onclick="sortWaterfall('latest')">Latest</button>
+        <button type="button" data-sort="heated" onclick="sortWaterfall('heated')">Most Heated</button>
+      </div>
+    </div>
+
+    <!-- WATERFALL PLACEHOLDER TEMPLATE -->
+    <div class="timeline-item" data-time="3" data-heat="76">
+      <div class="dot"></div>
+      <div class="content">
+        <div class="time">[TIME PLACEHOLDER]</div>
+        <div>[HEADLINE PLACEHOLDER — AI generated macro/market event title]</div>
+        <div class="chart timeline-chart">
+          <span class="placeholder-text">[Generated Finance Chart Placeholder]</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="timeline-item" data-time="2" data-heat="91">
+      <div class="dot"></div>
+      <div class="content">
+        <div class="time">[TIME PLACEHOLDER]</div>
+        <div>[HEADLINE PLACEHOLDER]</div>
+        <div class="chart timeline-chart">
+          <span class="placeholder-text">[Chart / Data Visualization Placeholder]</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="timeline-item" data-time="1" data-heat="64">
+      <div class="dot"></div>
+      <div class="content">
+        <div class="time">[TIME PLACEHOLDER]</div>
+        <div>[HEADLINE PLACEHOLDER]</div>
+        <div class="chart timeline-chart">
+          <span class="placeholder-text">[Future Event Trigger Chart Placeholder]</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div id="category" style="display:none" class="section">
+
+  <div class="category-row">
+    <div class="category-title">Economic</div>
+    <div class="horizontal-scroll">
+      <div class="card">
+        GDP
+        <div class="card-chart">[GDP Chart Placeholder]</div>
+      </div>
+      <div class="card">
+        Consumption
+        <div class="card-chart">[Consumption Chart Placeholder]</div>
+      </div>
+      <div class="card">
+        Employment
+        <div class="card-chart">[Employment Chart Placeholder]</div>
+      </div>
+      <div class="card">
+        [Additional Economic Category]
+        <div class="card-chart">[Placeholder]</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="category-row">
+    <div class="category-title">Company Intelligence</div>
+    <div class="horizontal-scroll">
+      <div class="card">AAPL<div class="card-chart">[AAPL Chart]</div></div>
+      <div class="card">TSLA<div class="card-chart">[TSLA Chart]</div></div>
+      <div class="card">NVDA<div class="card-chart">[NVDA Chart]</div></div>
+      <div class="card">[Custom Ticker]<div class="card-chart">[Placeholder]</div></div>
+    </div>
+  </div>
+
+  <div class="category-row">
+    <div class="category-title">Geopolitical</div>
+    <div class="horizontal-scroll">
+      <div class="card">Middle East<div class="card-chart">[Regional Risk Chart]</div></div>
+      <div class="card">Ukraine<div class="card-chart">[Conflict Impact Chart]</div></div>
+      <div class="card">[Additional Region]<div class="card-chart">[Placeholder]</div></div>
+    </div>
+  </div>
+
+  <div class="category-row">
+    <div class="category-title">Industry</div>
+    <div class="horizontal-scroll">
+      <div class="card">AI<div class="card-chart">[AI Sector Chart]</div></div>
+      <div class="card">Energy<div class="card-chart">[Energy Sector Chart]</div></div>
+      <div class="card">Defense<div class="card-chart">[Defense Sector Chart]</div></div>
+      <div class="card">[Custom Industry]<div class="card-chart">[Placeholder]</div></div>
+    </div>
+  </div>
+
+</div>
+
+<div id="watchlist" style="display:none" class="section">
+  <div class="watchlist">
+    <div class="tickers">
+      <div>AAPL</div>
+      <div>TSLA</div>
+      <div>NVDA</div>
+      <div>[CUSTOM]</div>
+    </div>
+
+    <div class="watch-charts">
+      <div class="chart" style="width:240px">[AAPL Chart]</div>
+      <div class="chart" style="width:240px">[TSLA Chart]</div>
+      <div class="chart" style="width:240px">[NVDA Chart]</div>
+      <div class="chart" style="width:240px">[Custom Chart]</div>
+    </div>
+  </div>
+</div>
+
+<script>
+function toggleDropdown() {
+  const d = document.getElementById("dropdown");
+  d.style.display = d.style.display === "flex" ? "none" : "flex";
+}
+
+function showPage(page) {
+  document.getElementById("recommendation").style.display = "none";
+  document.getElementById("category").style.display = "none";
+  document.getElementById("watchlist").style.display = "none";
+
+  document.getElementById(page).style.display = "block";
+}
+
+function sortWaterfall(mode) {
+  const section = document.querySelector(".recommendation-section");
+  const items = Array.from(section.querySelectorAll(".timeline-item"));
+  const buttons = section.querySelectorAll(".sort-tabs button");
+  const sortKey = mode === "heated" ? "heat" : "time";
+
+  buttons.forEach((button) => {
+    button.classList.toggle("active", button.dataset.sort === mode);
+  });
+
+  items
+    .sort((a, b) => Number(b.dataset[sortKey]) - Number(a.dataset[sortKey]))
+    .forEach((item) => section.appendChild(item));
+}
+</script>
+
+</body>
+</html>
